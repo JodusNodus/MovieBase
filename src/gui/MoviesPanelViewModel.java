@@ -8,10 +8,12 @@ package gui;
 import data.GenreRepository;
 import data.MovieRepository;
 import data.Repositories;
+import data.TransactionRepository;
 import domain.Genre;
 import domain.Movie;
 import java.util.Collections;
 import java.util.List;
+import transactions.AddMovie;
 
 /**
  *
@@ -20,6 +22,7 @@ import java.util.List;
 public class MoviesPanelViewModel {
     private final MovieRepository movieRepo;
     private final GenreRepository genreRepo;
+    private final TransactionRepository txRepo;
     
     private List<Movie> movieList;
     private List<Genre> genreList;
@@ -27,6 +30,7 @@ public class MoviesPanelViewModel {
     public MoviesPanelViewModel() {
         this.movieRepo = Repositories.getMovieRepository();
         this.genreRepo = Repositories.getGenreRepository();
+        this.txRepo = Repositories.getTransactionRepository();
     }
     
     public List<Movie> getMovieList() {
@@ -48,6 +52,8 @@ public class MoviesPanelViewModel {
     }
 
     void handleMovieCreate(String title, Genre genre) {
+        txRepo.addTransaction(new AddMovie(title, genre));
+        txRepo.execute();
         movieRepo.createMovie(title, genre);
     }
 

@@ -8,10 +8,13 @@ package gui;
 import data.GenreRepository;
 import data.MovieRepository;
 import data.Repositories;
+import data.TransactionRepository;
 import domain.Genre;
 import domain.Movie;
 import java.util.Collections;
 import java.util.List;
+import transactions.AddGenre;
+import transactions.DeleteGenre;
 import transactions.Transaction;
 
 /**
@@ -21,6 +24,7 @@ import transactions.Transaction;
 public class GenresPanelViewModel {
     private final MovieRepository movieRepo;
     private final GenreRepository genreRepo;
+    private final TransactionRepository txRepo;
     
     private Genre selectedGenre;
     private List<Movie> movieList;
@@ -29,6 +33,7 @@ public class GenresPanelViewModel {
     public GenresPanelViewModel() {
         this.movieRepo = Repositories.getMovieRepository();
         this.genreRepo = Repositories.getGenreRepository();
+        this.txRepo = Repositories.getTransactionRepository();
     }
     
     public List<Genre> getGenreList() {
@@ -65,10 +70,12 @@ public class GenresPanelViewModel {
     }
 
     void handleGenreDelete(Genre g) {
-        genreRepo.deleteGenre(g);
+        txRepo.addTransaction(new DeleteGenre(g));
+        txRepo.execute();
     }
 
     void handleGenreCreate(String name) {
-        Genre g = genreRepo.createGenre(name);
+        txRepo.addTransaction(new AddGenre(name));
+        txRepo.execute();
     }
 }
