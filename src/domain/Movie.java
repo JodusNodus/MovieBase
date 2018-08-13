@@ -5,6 +5,7 @@
  */
 package domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  *
  * @author jodus
  */
-public class Movie {
+public class Movie implements Serializable {
     public final int id;
     public final String title;
     public final Genre genre;

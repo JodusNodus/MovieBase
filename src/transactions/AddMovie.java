@@ -15,8 +15,8 @@ import java.io.Serializable;
  */
 public class AddMovie implements Transaction, Serializable {
 
-    private String title;
-    private Genre genre;
+    public String title;
+    public Genre genre;
     
     public AddMovie(String title, Genre genre) {
         this.title = title;
@@ -24,8 +24,8 @@ public class AddMovie implements Transaction, Serializable {
     }
     
     @Override
-    public void execute() {
-        Repositories.getMovieRepository().createMovie(title, genre);
+    public void accept(TransactionHandler handler) {
+        handler.receive(this);
     }
     
 }

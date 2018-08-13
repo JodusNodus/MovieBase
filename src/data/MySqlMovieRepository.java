@@ -34,7 +34,7 @@ public class MySqlMovieRepository implements MovieRepository {
     private static MovieRepository instance;
     private Connection conn;
     
-    public static MovieRepository getInstance() throws Exception {
+    public synchronized static MovieRepository getInstance() throws Exception {
         if (instance == null) {
             instance = new MySqlMovieRepository();
         }
@@ -50,7 +50,7 @@ public class MySqlMovieRepository implements MovieRepository {
     }
     
     @Override
-    public List<Movie> getMovies() {
+    public synchronized List<Movie> getMovies() {
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(SELECT_MOVIES);
             List<Movie> movies = new ArrayList<>();
@@ -72,7 +72,7 @@ public class MySqlMovieRepository implements MovieRepository {
     }
 
     @Override
-    public List<Movie> getGenreMovies(Genre genre) {
+    public synchronized List<Movie> getGenreMovies(Genre genre) {
         try (PreparedStatement stmt = conn.prepareStatement(SELECT_MOVIES_WITH_GENRE)) {
             stmt.setInt(1, genre.id);
             ResultSet rs = stmt.executeQuery();
@@ -92,7 +92,7 @@ public class MySqlMovieRepository implements MovieRepository {
     }
     
     @Override
-    public Movie createMovie(String title, Genre genre) {
+    public synchronized Movie createMovie(String title, Genre genre) {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_MOVIE, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, title);
             stmt.setInt(2, genre.id);
@@ -110,7 +110,7 @@ public class MySqlMovieRepository implements MovieRepository {
     }
     
     @Override
-    public void deleteMovie(Movie movie) {
+    public synchronized void deleteMovie(Movie movie) {
         try (PreparedStatement stmt = conn.prepareStatement(DELETE_MOVIE)) {
             stmt.setInt(1, movie.id);
             stmt.executeUpdate();

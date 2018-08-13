@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
  *
  * @author jodus
  */
-public class GenresPanel extends javax.swing.JPanel {
+public class GenresPanel extends javax.swing.JPanel implements GUIPanel {
 
     private final GenresPanelViewModel viewModel;
 
@@ -30,8 +30,11 @@ public class GenresPanel extends javax.swing.JPanel {
         
         this.viewModel = new GenresPanelViewModel();
         update();
+        
+        Client.getInstance().accept(this);
     }
     
+    @Override
     public void update() {
         viewModel.fetchGenreList();
         viewModel.fetchMovieList();
@@ -147,7 +150,6 @@ public class GenresPanel extends javax.swing.JPanel {
         String name = JOptionPane.showInputDialog(this, "Create a new genre");
         if (name != null) {
             viewModel.handleGenreCreate(name);
-            update();
         }
     }//GEN-LAST:event_jAddBtnActionPerformed
 
@@ -167,7 +169,6 @@ public class GenresPanel extends javax.swing.JPanel {
             int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the grenre: " + g.name);
             if (result == JOptionPane.OK_OPTION) {
                 viewModel.handleGenreDelete(g);
-                update();
             }
         }
     }//GEN-LAST:event_jDeleteBtnActionPerformed

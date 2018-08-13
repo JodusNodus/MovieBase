@@ -24,7 +24,6 @@ import transactions.Transaction;
 public class GenresPanelViewModel {
     private final MovieRepository movieRepo;
     private final GenreRepository genreRepo;
-    private final TransactionRepository txRepo;
     
     private Genre selectedGenre;
     private List<Movie> movieList;
@@ -33,7 +32,7 @@ public class GenresPanelViewModel {
     public GenresPanelViewModel() {
         this.movieRepo = Repositories.getMovieRepository();
         this.genreRepo = Repositories.getGenreRepository();
-        this.txRepo = Repositories.getTransactionRepository();
+        
     }
     
     public List<Genre> getGenreList() {
@@ -70,12 +69,10 @@ public class GenresPanelViewModel {
     }
 
     void handleGenreDelete(Genre g) {
-        txRepo.addTransaction(new DeleteGenre(g));
-        txRepo.execute();
+        Client.getInstance().transmit(new DeleteGenre(g));
     }
 
     void handleGenreCreate(String name) {
-        txRepo.addTransaction(new AddGenre(name));
-        txRepo.execute();
+        Client.getInstance().transmit(new AddGenre(name));
     }
 }

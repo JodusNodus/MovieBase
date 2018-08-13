@@ -7,6 +7,7 @@ package transactions;
 
 import data.Repositories;
 import java.io.Serializable;
+import server.SocketHandler;
 
 /**
  *
@@ -14,15 +15,15 @@ import java.io.Serializable;
  */
 public class AddGenre implements Transaction, Serializable {
 
-    private String name;
+    public String name;
     
     public AddGenre(String name) {
         this.name = name;
     }
 
     @Override
-    public void execute() {
-        Repositories.getGenreRepository().createGenre(name);
+    public void accept(TransactionHandler handler) {
+        handler.receive(this);
     }
     
 }

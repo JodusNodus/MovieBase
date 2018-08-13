@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package transactions;
-
-import java.io.Serializable;
+package gui;
 
 /**
  *
  * @author jodus
  */
-public interface Transaction extends Serializable {
-    public void accept(TransactionHandler th);
+public interface GUIPanel {
+    public void update();
 }

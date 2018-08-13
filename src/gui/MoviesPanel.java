@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
  *
  * @author jodus
  */
-public class MoviesPanel extends javax.swing.JPanel {
+public class MoviesPanel extends javax.swing.JPanel implements GUIPanel {
 
     private MoviesPanelViewModel viewModel;
 
@@ -28,14 +28,16 @@ public class MoviesPanel extends javax.swing.JPanel {
         initComponents();
         
         jMoviesList.setModel(new DefaultListModel<>());
-        this.viewModel = new MoviesPanelViewModel();
-        update();
-    }
-    
-    public void update() {
+        this.viewModel = new MoviesPanelViewModel(this);
+        
         viewModel.fetchMovieList();
         viewModel.fetchGenreList();
-        
+    
+        Client.getInstance().accept(this);
+    }
+    
+    @Override
+    public void update() {
         DefaultListModel moviesList = (DefaultListModel) jMoviesList.getModel();
         moviesList.removeAllElements();
         for (Movie movie: viewModel.getMovieList()) {
@@ -126,7 +128,6 @@ public class MoviesPanel extends javax.swing.JPanel {
             return;
         }
         viewModel.handleMovieCreate(name, genres.get(genreIndex));
-        update();
     }//GEN-LAST:event_jAddBtnActionPerformed
 
     private void jDeleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteBtnActionPerformed
@@ -138,7 +139,6 @@ public class MoviesPanel extends javax.swing.JPanel {
         int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the movie: " + m.title);
         if (result == JOptionPane.OK_OPTION) {
             viewModel.handleDelete(m);
-            update();
         }
     }//GEN-LAST:event_jDeleteBtnActionPerformed
 

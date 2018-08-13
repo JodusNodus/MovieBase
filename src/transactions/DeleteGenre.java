@@ -15,15 +15,14 @@ import java.io.Serializable;
  */
 public class DeleteGenre implements Transaction, Serializable {
     
-    private Genre genre;
+    public Genre genre;
     
     public DeleteGenre(Genre genre) {
         this.genre = genre;
     }
 
     @Override
-    public void execute() {
-        Repositories.getGenreRepository().deleteGenre(genre);
+    public void accept(TransactionHandler handler) {
+        handler.receive(this);
     }
-    
 }

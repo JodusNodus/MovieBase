@@ -29,12 +29,4 @@ public class Repositories {
             return null;
         }
     }
-    public static TransactionRepository getTransactionRepository(){
-        try {
-            return FsTransactionRepository.getInstance();
-        } catch (Exception ex) {
-            Logger.getLogger(Repositories.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
 }

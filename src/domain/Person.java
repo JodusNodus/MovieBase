@@ -5,6 +5,7 @@
  */
 package domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  *
  * @author jodus
  */
-public class Person {
+public class Person implements Serializable {
     public final String firstName;
     public final String lastName;
     

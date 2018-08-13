@@ -14,6 +14,7 @@ import domain.Movie;
 import java.util.Collections;
 import java.util.List;
 import transactions.AddMovie;
+import transactions.DeleteMovie;
 
 /**
  *
@@ -22,15 +23,15 @@ import transactions.AddMovie;
 public class MoviesPanelViewModel {
     private final MovieRepository movieRepo;
     private final GenreRepository genreRepo;
-    private final TransactionRepository txRepo;
     
     private List<Movie> movieList;
     private List<Genre> genreList;
+    private final GUIPanel panel;
     
-    public MoviesPanelViewModel() {
+    public MoviesPanelViewModel(GUIPanel panel) {
+        this.panel = panel;
         this.movieRepo = Repositories.getMovieRepository();
         this.genreRepo = Repositories.getGenreRepository();
-        this.txRepo = Repositories.getTransactionRepository();
     }
     
     public List<Movie> getMovieList() {
@@ -52,12 +53,10 @@ public class MoviesPanelViewModel {
     }
 
     void handleMovieCreate(String title, Genre genre) {
-        txRepo.addTransaction(new AddMovie(title, genre));
-        txRepo.execute();
-        movieRepo.createMovie(title, genre);
+        Client.getInstance().transmit(new AddMovie(title, genre));
     }
 
     void handleDelete(Movie m) {
-        movieRepo.deleteMovie(m);
+        Client.getInstance().transmit(new DeleteMovie(m));
     }
 }

@@ -5,12 +5,15 @@
  */
 package transactions;
 
-import java.io.Serializable;
-
 /**
  *
  * @author jodus
  */
-public interface Transaction extends Serializable {
-    public void accept(TransactionHandler th);
+public class TransactionExecuted implements Transaction {
+
+    @Override
+    public void accept(TransactionHandler th) {
+        th.receive(this);
+    }
+    
 }

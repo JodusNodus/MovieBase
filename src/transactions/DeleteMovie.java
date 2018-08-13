@@ -15,15 +15,14 @@ import java.io.Serializable;
  */
 public class DeleteMovie implements Transaction, Serializable {
 
-    private Movie movie;
+    public Movie movie;
     
     public DeleteMovie(Movie movie) {
         this.movie = movie;
     }
 
     @Override
-    public void execute() {
-        Repositories.getMovieRepository().deleteMovie(movie);
+    public void accept(TransactionHandler handler) {
+        handler.receive(this);
     }
-    
 }

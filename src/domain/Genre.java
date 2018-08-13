@@ -5,11 +5,13 @@
  */
 package domain;
 
+import java.io.Serializable;
+
 /**
  *
  * @author jodus
  */
-public class Genre {
+public class Genre implements Serializable {
     
     public final int id;
     public final String name;

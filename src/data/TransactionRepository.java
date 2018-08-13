@@ -15,5 +15,4 @@ import java.util.List;
 public interface TransactionRepository {
     public void addTransaction(Transaction tx);
     public List<Transaction> getTransactions();
-    public void execute();
 }
