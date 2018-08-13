@@ -7,6 +7,7 @@ package gui;
 
 import data.GenreRepository;
 import data.MovieRepository;
+import data.Observable;
 import data.Repositories;
 import domain.Genre;
 import domain.Movie;
@@ -21,30 +22,25 @@ public class MoviesPanelViewModel {
     private final MovieRepository movieRepo;
     private final GenreRepository genreRepo;
     
-    private List<Movie> movieList;
-    private List<Genre> genreList;
-    
     public MoviesPanelViewModel() {
         this.movieRepo = Repositories.getMovieRepository();
         this.genreRepo = Repositories.getGenreRepository();
     }
     
-    public List<Movie> getMovieList() {
-        return movieList;
+    public Observable<List<Movie>> getMoviesObservable() {
+        return movieRepo.getMoviesObservable();
     }
     
-    public List<Genre> getGenreList() {
-        return genreList;
+    public Observable<List<Genre>> getGenresObservable() {
+        return genreRepo.getGenresObservable();
     }
     
     public void fetchMovieList() {
-        List<Movie> movies = movieRepo.getMovies();
-        this.movieList = Collections.unmodifiableList(movies);
+        movieRepo.fetchMovies();
     }
     
     public void fetchGenreList() {
-        List<Genre> genres = genreRepo.getGenres();
-        this.genreList = Collections.unmodifiableList(genres);
+        genreRepo.fetchGenres();
     }
 
     void handleMovieCreate(String title, Genre genre) {

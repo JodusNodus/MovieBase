@@ -14,7 +14,8 @@ import java.util.List;
  * @author jodus
  */
 public interface GenreRepository {
-    public List<Genre> getGenres();
-    public Genre createGenre(String name);
+    public Observable<List<Genre>> getGenresObservable();
+    public void fetchGenres();
+    public void createGenre(String name);
     public void deleteGenre(Genre g);
 }

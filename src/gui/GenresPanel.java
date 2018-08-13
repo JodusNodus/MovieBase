@@ -7,6 +7,7 @@ package gui;
 
 import domain.Genre;
 import domain.Movie;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -29,29 +30,34 @@ public class GenresPanel extends javax.swing.JPanel {
         jMovieList.setModel(new DefaultListModel<>());
         
         this.viewModel = new GenresPanelViewModel();
-        update();
-    }
-    
-    public void update() {
+        
+        viewModel.getGenresObservable().observeChange((genres) -> {
+            viewModel.handleSelectedGenreChange(genres.get(0));
+            updateGenreBox(genres);
+            return null;
+        });
+        
+        viewModel.getMoviesObservable().observeChange((movies) -> {
+            updateMoviesList(movies);
+            return null;
+        });
+        
         viewModel.fetchGenreList();
-        viewModel.fetchMovieList();
-        updateGenreBox();
-        updateMoviesList();
     }
-    
-    private void updateGenreBox() {
+
+    private void updateGenreBox(List<Genre> genres) {
         DefaultComboBoxModel genreList = (DefaultComboBoxModel) jGenreBox.getModel();
         genreList.removeAllElements();
-        for (Genre genre: viewModel.getGenreList()) {
+        for (Genre genre: genres) {
             genreList.addElement(genre.name);
         }
         jGenreBox.setSelectedIndex(viewModel.getSelectedIndex());
     }
     
-    private void updateMoviesList() {
+    private void updateMoviesList(List<Movie> movies) {
         DefaultListModel moviesList = (DefaultListModel) jMovieList.getModel();
         moviesList.removeAllElements();
-        for (Movie movie: viewModel.getMovieList()) {
+        for (Movie movie: movies) {
             moviesList.addElement(movie.title);
         }
     }
@@ -147,28 +153,33 @@ public class GenresPanel extends javax.swing.JPanel {
         String name = JOptionPane.showInputDialog(this, "Create a new genre");
         if (name != null) {
             viewModel.handleGenreCreate(name);
-            update();
         }
     }//GEN-LAST:event_jAddBtnActionPerformed
 
     private void jGenreBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jGenreBoxActionPerformed
-        if (jGenreBox.getSelectedIndex() > -1) {
-            int genreIndex = jGenreBox.getSelectedIndex();
-            Genre g = viewModel.getGenreList().get(genreIndex);
-            viewModel.handleSelectedGenreChange(g);
-            update();
+        if (jGenreBox.getSelectedIndex() < 0) {
+            return;
         }
+        int genreIndex = jGenreBox.getSelectedIndex();
+        Genre g = viewModel.getGenresObservable().getValue().get(genreIndex);
+        if (g == null) {
+            return;
+        }
+        viewModel.handleSelectedGenreChange(g);
     }//GEN-LAST:event_jGenreBoxActionPerformed
 
     private void jDeleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteBtnActionPerformed
         int genreIndex = jGenreBox.getSelectedIndex();
-        if (genreIndex > -1) {
-            Genre g = viewModel.getGenreList().get(genreIndex);
-            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the grenre: " + g.name);
-            if (result == JOptionPane.OK_OPTION) {
-                viewModel.handleGenreDelete(g);
-                update();
-            }
+        if (genreIndex < 0) {
+            return;
+        }
+        Genre g = viewModel.getGenresObservable().getValue().get(genreIndex);
+        if (g == null) {
+            return;
+        }
+        int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the grenre: " + g.name);
+        if (result == JOptionPane.OK_OPTION) {
+            viewModel.handleGenreDelete(g);
         }
     }//GEN-LAST:event_jDeleteBtnActionPerformed
 

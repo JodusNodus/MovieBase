@@ -32,6 +32,8 @@ public class MySqlGenreRepository implements GenreRepository {
     private static GenreRepository instance;
     private Connection conn;
     
+    private Observable<List<Genre>> genres;
+    
     public static GenreRepository getInstance() throws Exception {
         if (instance == null) {
             instance = new MySqlGenreRepository();
@@ -40,6 +42,7 @@ public class MySqlGenreRepository implements GenreRepository {
     }
     
     public MySqlGenreRepository() throws Exception {
+        genres = new Observable<>();
         try{
             conn = MySqlConnection.getConnection();
         } catch (SQLException ex) {
@@ -48,50 +51,63 @@ public class MySqlGenreRepository implements GenreRepository {
     }
     
     @Override
-    public List<Genre> getGenres() {
-        try (Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery(SELECT_GENRES);
-            List<Genre> genres = new ArrayList<>();
-            while (rs.next())
-            {
-                int id = rs.getInt("id");
-                String genre = rs.getString("name");
-                Genre g = new Genre(id, genre);
-                genres.add(g);
+    public Observable<List<Genre>> getGenresObservable() {
+        return genres;
+    }
+    
+    @Override
+    public void fetchGenres() {
+        new Thread(() -> {
+            try (Statement stmt = conn.createStatement()) {
+                ResultSet rs = stmt.executeQuery(SELECT_GENRES);
+                List<Genre> genres = new ArrayList<>();
+                while (rs.next())
+                {
+                    int id = rs.getInt("id");
+                    String genre = rs.getString("name");
+                    Genre g = new Genre(id, genre);
+                    genres.add(g);
+                }
+                rs.close();
+
+                this.genres.setValue(genres);
+            } catch (SQLException ex) {
+                System.out.println(ex);
             }
-            rs.close();
-            return genres;
-        } catch (SQLException ex) {
-            System.out.println(ex);
-            return null;
-        }
+        }).start();
     }
 
     @Override
-    public Genre createGenre(String name) {
-        try (PreparedStatement stmt = conn.prepareStatement(INSERT_GENRE, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, name);
-            stmt.executeUpdate();
-            
-            ResultSet rs = stmt.getGeneratedKeys();
-            rs.next();
-            Genre g = new Genre(rs.getInt(1), name);
-            rs.close();
-            return g;
-        } catch (SQLException ex) {
-            System.out.println(ex);
-            return null;
-        }
+    public void createGenre(String name) {
+        new Thread(() -> {
+            try (PreparedStatement stmt = conn.prepareStatement(INSERT_GENRE, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, name);
+                stmt.executeUpdate();
+
+                ResultSet rs = stmt.getGeneratedKeys();
+                rs.next();
+                Genre g = new Genre(rs.getInt(1), name);
+                rs.close();
+
+                fetchGenres();
+            } catch (SQLException ex) {
+                System.out.println(ex);
+            }
+        }).start();
     }
     
     @Override
     public void deleteGenre(Genre genre) {
-        try (PreparedStatement stmt = conn.prepareStatement(DELETE_GENRE)) {
-            stmt.setInt(1, genre.id);
-            stmt.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println(ex);
-        }
+        new Thread(() -> {
+            try (PreparedStatement stmt = conn.prepareStatement(DELETE_GENRE)) {
+                stmt.setInt(1, genre.id);
+                stmt.executeUpdate();
+
+                fetchGenres();
+            } catch (SQLException ex) {
+                System.out.println(ex);
+            }
+        }).start();
     }
     
 }

@@ -7,6 +7,7 @@ package data;
 
 import domain.Genre;
 import domain.Movie;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,8 +15,10 @@ import java.util.List;
  * @author jodus
  */
 public interface MovieRepository {
-    public List<Movie> getMovies();
-    public List<Movie> getGenreMovies(Genre genre);
-    public Movie createMovie(String title, Genre genre);
+    public Observable<List<Movie>> getMoviesObservable();
+    public Observable<List<Movie>> getGenreMoviesObservable();
+    public void fetchMovies();
+    public void fetchGenreMovies(Genre genre);
+    public void createMovie(String title, Genre genre);
     public void deleteMovie(Movie movie);
 }

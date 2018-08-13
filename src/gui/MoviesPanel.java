@@ -29,16 +29,20 @@ public class MoviesPanel extends javax.swing.JPanel {
         
         jMoviesList.setModel(new DefaultListModel<>());
         this.viewModel = new MoviesPanelViewModel();
-        update();
-    }
-    
-    public void update() {
+        
+        viewModel.getMoviesObservable().observeChange((movies) -> {
+            updateMoviesList(movies);
+            return null;
+        });
+        
         viewModel.fetchMovieList();
         viewModel.fetchGenreList();
-        
+    }
+    
+    public void updateMoviesList(List<Movie> movies) {
         DefaultListModel moviesList = (DefaultListModel) jMoviesList.getModel();
         moviesList.removeAllElements();
-        for (Movie movie: viewModel.getMovieList()) {
+        for (Movie movie: movies) {
             moviesList.addElement(movie.title);
         }
     }
@@ -107,26 +111,32 @@ public class MoviesPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private int showGenrePickerDialog() {
+        DefaultComboBoxModel boxModel = new DefaultComboBoxModel();
+        for (Genre g: viewModel.getGenresObservable().getValue()) {
+            boxModel.addElement(g.name);
+        }
+
+        JComboBox optionList = new JComboBox(boxModel);
+        JOptionPane.showMessageDialog(this, optionList, "Choose the genre", JOptionPane.QUESTION_MESSAGE);
+        return optionList.getSelectedIndex();
+    }
+    
     private void jAddBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAddBtnActionPerformed
         String name = JOptionPane.showInputDialog(this, "Add movie");
         if (name == null || name.length() == 0) {
             return;
         }
         
-        DefaultComboBoxModel boxModel = new DefaultComboBoxModel();
-        List<Genre> genres = viewModel.getGenreList();
-        for (Genre g: genres) {
-            boxModel.addElement(g.name);
-        }
-
-        JComboBox optionList = new JComboBox(boxModel);
-        JOptionPane.showMessageDialog(this, optionList, "Choose the genre", JOptionPane.QUESTION_MESSAGE);
-        int genreIndex = optionList.getSelectedIndex();
+        int genreIndex = showGenrePickerDialog();
         if (genreIndex == -1) {
             return;
         }
-        viewModel.handleMovieCreate(name, genres.get(genreIndex));
-        update();
+        Genre g = viewModel.getGenresObservable().getValue().get(genreIndex);
+        if (g == null) {
+            return;
+        }
+        viewModel.handleMovieCreate(name, g);
     }//GEN-LAST:event_jAddBtnActionPerformed
 
     private void jDeleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteBtnActionPerformed
@@ -134,11 +144,10 @@ public class MoviesPanel extends javax.swing.JPanel {
         if (movieIndex == -1) {
             return;
         }
-        Movie m = viewModel.getMovieList().get(movieIndex);
+        Movie m = viewModel.getMoviesObservable().getValue().get(movieIndex);
         int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the movie: " + m.title);
         if (result == JOptionPane.OK_OPTION) {
             viewModel.handleDelete(m);
-            update();
         }
     }//GEN-LAST:event_jDeleteBtnActionPerformed
 

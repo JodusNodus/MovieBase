@@ -7,6 +7,7 @@ package gui;
 
 import data.GenreRepository;
 import data.MovieRepository;
+import data.Observable;
 import data.Repositories;
 import domain.Genre;
 import domain.Movie;
@@ -22,45 +23,41 @@ public class GenresPanelViewModel {
     private final GenreRepository genreRepo;
     
     private Genre selectedGenre;
-    private List<Movie> movieList;
-    private List<Genre> genreList;
     
     public GenresPanelViewModel() {
         this.movieRepo = Repositories.getMovieRepository();
         this.genreRepo = Repositories.getGenreRepository();
     }
     
-    public List<Genre> getGenreList() {
-        return genreList;
+    public Observable<List<Genre>> getGenresObservable() {
+        return genreRepo.getGenresObservable();
     }
     
-    public List<Movie> getMovieList() {
-        return movieList;
+    public Observable<List<Movie>> getMoviesObservable() {
+        return movieRepo.getGenreMoviesObservable();
     }
     
     public int getSelectedIndex() {
-        int index = getGenreList().indexOf(selectedGenre);
-        if (index == -1) {
+        if (selectedGenre == null || getGenresObservable().getValue() == null) {
             return 0;
         }
-        return index;
+        return getGenresObservable().getValue().indexOf(selectedGenre);
     }
     
-    public void fetchMovieList() {
+    private void fetchMovieList() {
         if (selectedGenre == null) {
-            selectedGenre = getGenreList().get(0);
+            return;
         }
-        List<Movie> movies = movieRepo.getGenreMovies(selectedGenre);
-        this.movieList = Collections.unmodifiableList(movies);
+        movieRepo.fetchGenreMovies(selectedGenre);
     }
     
     public void fetchGenreList() {
-        List<Genre> genres = genreRepo.getGenres();
-        this.genreList = Collections.unmodifiableList(genres);
+        genreRepo.fetchGenres();
     }
     
     public void handleSelectedGenreChange(Genre g) {
         selectedGenre = g;
+        fetchMovieList();
     }
 
     void handleGenreDelete(Genre g) {
@@ -68,6 +65,6 @@ public class GenresPanelViewModel {
     }
 
     void handleGenreCreate(String name) {
-        Genre g = genreRepo.createGenre(name);
+        genreRepo.createGenre(name);
     }
 }
