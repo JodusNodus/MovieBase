@@ -12,7 +12,6 @@ import domain.Genre;
 import domain.Movie;
 import java.util.Collections;
 import java.util.List;
-import transactions.Transaction;
 
 /**
  *
